@@ -22,13 +22,11 @@ app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
 
-app.post('/ga-data', async (req, res) => {
-    const { name, email } = req.body;
-    let response;
+app.post('/analytics', async (req, res) => {
     try {
-      response = await analytics();
+      response = await analytics(req.body);
+      res.json(response);
     } catch (error) {
-      response = error.message;
+      res.json({ error: error.message });
     }
-    res.json({ message: response });
 });
