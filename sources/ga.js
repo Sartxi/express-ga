@@ -1,21 +1,19 @@
 'use strict';
 
-const fs = require('fs');
-
-function formatResponse(response) {
+function formatGA(response) {
   const { metricHeaders, rows } = response;
   return rows.reduce((result, row) => {
     const { dimensionValues, metricValues } = row;
     const first = dimensionValues.shift();
     const value = first.value;
     if (!result[value]) result[value] = [];
-    result[value].push(
-      dimensionValues.map(dimension => ({
+    dimensionValues.forEach((dimension) => {
+      result[value].push({
         [dimension.value]: metricValues.map(({ value }, i) => ({
           [metricHeaders[i].name]: value
         }))
-      }))
-    );
+      })
+    });
     return result;
   }, {});
 }
@@ -30,43 +28,9 @@ function analytics(
     keyFilename: credentials,
   });
 
-  async function runReport(props = {
-    dateRanges: [{ startDate: '2020-03-31', endDate: 'today' }],
-    dimensions: [{ name: 'country' }],
-    metrics: [{ name: 'activeUsers' }]
-  }) {
-    const [response] = await analyticsDataClient.runReport({
-      property: `properties/${propertyId}`,
-      dateRanges: [
-        {
-          startDate: '2020-03-31',
-          endDate: 'today',
-        },
-      ],
-      dimensions: [
-        {
-          name: 'country',
-        }, {
-          name: 'city',
-        },
-      ],
-      metrics: [
-        {
-          name: 'activeUsers',
-        },
-      ],
-    });
-
-    const formatted = formatResponse(response);
-
-    fs.writeFile('./ga.json', JSON.stringify(formatted, null, 2), (err) => {
-      if (err) {
-        console.error('Error writing file:', err);
-      } else {
-        console.log('Data written to output.json');
-      }
-    });
-
+  async function runReport(props) {
+    const [response] = await analyticsDataClient.runReport({ property: `properties/${propertyId}`, ...props });
+    const formatted = formatGA(response);
     return formatted;
   }
   return runReport(properties);
