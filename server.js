@@ -3,14 +3,13 @@ require('dotenv').config();
 const { analytics } = require('./sources/ga.js');
 
 const express = require('express');
-// const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const app = express();
 const port = process.env.PORT;
 
 // Middleware
-bodyParser = require('body-parser').json();
+const bodyParser = require('body-parser').json();
 app.use(bodyParser);
 app.use(cors());
 

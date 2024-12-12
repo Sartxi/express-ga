@@ -6,14 +6,9 @@ function formatGA(response) {
     const { dimensionValues, metricValues } = row;
     const first = dimensionValues.length > 1 ? dimensionValues.shift() : dimensionValues[0];
     const value = first.value;
-    if (!result[value]) result[value] = [];
-    dimensionValues.forEach((dimension) => {
-      result[value].push({
-        [dimension.value]: metricValues.map(({ value }, i) => ({
-          [metricHeaders[i].name]: value
-        }))
-      })
-    });
+    if (!result[value]) result[value] = metricValues.map(({ value }, i) => ({
+      [metricHeaders[i].name]: value
+    }));
     return result;
   }, {});
 }
@@ -24,10 +19,7 @@ function analytics(
   credentials = process.env.GOOGLE_APPLICATION_CREDENTIALS
 ) {
   const { BetaAnalyticsDataClient } = require('@google-analytics/data');
-  const analyticsDataClient = new BetaAnalyticsDataClient({
-    keyFilename: credentials,
-  });
-
+  const analyticsDataClient = new BetaAnalyticsDataClient({ keyFilename: credentials });
   async function runReport(props) {
     const [response] = await analyticsDataClient.runReport({ property: `properties/${propertyId}`, ...props });
     const formatted = formatGA(response);
