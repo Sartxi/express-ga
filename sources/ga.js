@@ -4,7 +4,7 @@ function formatGA(response) {
   const { metricHeaders, rows } = response;
   return rows.reduce((result, row) => {
     const { dimensionValues, metricValues } = row;
-    const first = dimensionValues.shift();
+    const first = dimensionValues.length > 1 ? dimensionValues.shift() : dimensionValues[0];
     const value = first.value;
     if (!result[value]) result[value] = [];
     dimensionValues.forEach((dimension) => {
